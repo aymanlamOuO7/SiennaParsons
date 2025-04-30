@@ -1,130 +1,755 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Character Equipment Viewer</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚔️ ARMORY INSPECTOR | Interactive Equipment Viewer</title>
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --gold: #FFD700;
+            --silver: #C0C0C0;
+            --bronze: #CD7F32;
+            --dark-bg: #121212;
+            --darker-bg: #0a0a0a;
+            --highlight: rgba(255, 215, 0, 0.2);
+            --glow-color: rgba(255, 215, 0, 0.7);
+            --glow-intense: rgba(255, 215, 0, 0.9);
+            --transition-speed: 0.3s;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
         body {
-            background-color: #222;
+            background-color: var(--dark-bg);
             color: white;
-            font-family: Arial, sans-serif;
+            font-family: 'MedievalSharp', cursive;
             text-align: center;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             overflow-x: hidden;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 215, 0, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(255, 215, 0, 0.05) 0%, transparent 20%),
+                url('https://www.transparenttextures.com/patterns/black-paper.png');
         }
+        
+        #app {
+            position: relative;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .header {
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            color: var(--gold);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            letter-spacing: 2px;
+            font-family: 'Orbitron', sans-serif;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--silver);
+        }
+        
         .container {
             position: relative;
             display: inline-block;
             margin: 20px auto;
+            max-width: 90%;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 15px rgba(0, 0, 0, 0.7));
         }
+        
         #character-image {
             display: block;
             max-width: 100%;
             height: auto;
             margin: 0 auto;
+            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.3));
+            transition: transform 0.3s ease;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
         }
+        
         .hover-image {
             position: fixed;
             display: none;
-            border: 2px solid gold;
-            border-radius: 5px;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+            border: 3px solid var(--gold);
+            border-radius: 10px;
+            box-shadow: 0 0 25px var(--glow-intense);
             z-index: 100;
             pointer-events: none;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(10, 10, 10, 0.95);
             left: 50%;
             top: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%) scale(0.9);
+            max-width: 80vw;
+            max-height: 80vh;
+            opacity: 0;
+            transition: all var(--transition-speed) ease;
+            padding: 15px;
+            animation: float 3s ease-in-out infinite;
         }
+        
+        .hover-image.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        .hover-image::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border: 1px solid var(--gold);
+            border-radius: 12px;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+        
         area {
             cursor: pointer;
             outline: none;
         }
-        h1 {
-            margin-bottom: 10px;
+        
+        /* Inventory sidebar */
+        .equipment-list {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(10, 10, 10, 0.8);
+            border: 1px solid var(--gold);
+            border-radius: 10px;
+            padding: 15px;
+            width: 250px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 50;
+            box-shadow: 0 0 20px rgba(0,0,0,0.7);
+            transform: translateX(120%);
+            transition: transform 0.4s ease;
         }
-        p {
-            margin-bottom: 20px;
+        
+        .equipment-list.show {
+            transform: translateX(0);
+        }
+        
+        .equipment-list h3 {
+            color: var(--gold);
+            margin-bottom: 15px;
+            text-align: center;
+            font-family: 'Orbitron', sans-serif;
+            border-bottom: 1px solid var(--gold);
+            padding-bottom: 5px;
+        }
+        
+        .equipment-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            margin-bottom: 8px;
+            background: rgba(30, 30, 30, 0.5);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .equipment-item:hover {
+            background: rgba(255, 215, 0, 0.2);
+            transform: translateX(5px);
+        }
+        
+        .equipment-icon {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+            background-color: var(--darker-bg);
+            border: 1px solid var(--gold);
+            border-radius: 5px;
+        }
+        
+        .equipment-name {
+            flex-grow: 1;
+            font-size: 0.9rem;
+        }
+        
+        /* Rarity colors */
+        .rarity-common {
+            color: white;
+        }
+        
+        .rarity-uncommon {
+            color: #1eff00;
+        }
+        
+        .rarity-rare {
+            color: #0070ff;
+        }
+        
+        .rarity-epic {
+            color: #a335ee;
+        }
+        
+        .rarity-legendary {
+            color: #ff8000;
+        }
+        
+        /* Character stats panel */
+        .character-stats {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid var(--gold);
+            border-radius: 10px;
+            padding: 15px;
+            display: none;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            max-width: 80%;
+            z-index: 60;
+            box-shadow: 0 0 20px rgba(0,0,0,0.7);
+        }
+        
+        .character-stats.show {
+            display: flex;
+        }
+        
+        .stat-card {
+            background: rgba(30, 30, 30, 0.7);
+            border: 1px solid var(--silver);
+            border-radius: 5px;
+            padding: 10px;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.2rem;
+            color: var(--gold);
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .stat-name {
+            font-size: 0.9rem;
+            color: var(--silver);
+        }
+        
+        /* Background particles */
+        .bg-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .particle {
+            position: absolute;
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        /* Audio toggle */
+        .audio-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid gold;
+            color: gold;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .audio-toggle:hover {
+            background: rgba(255, 215, 0, 0.2);
+            transform: scale(1.1);
+        }
+        
+        /* Controls */
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            z-index: 50;
+        }
+        
+        .control-btn {
+            background: rgba(20, 20, 20, 0.8);
+            border: 2px solid var(--gold);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'MedievalSharp', cursive;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        .control-btn:hover {
+            background: var(--gold);
+            color: black;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+        
+        .control-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Animations */
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 5px var(--gold), 0 0 10px var(--gold);
+            }
+            to {
+                text-shadow: 0 0 10px var(--gold), 0 0 20px var(--gold), 0 0 30px #ff8c00;
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translate(-50%, -50%) translateY(0);
+            }
+            50% {
+                transform: translate(-50%, -50%) translateY(-10px);
+            }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                max-width: 95%;
+            }
+            
+            .equipment-list {
+                width: 200px;
+                top: 10px;
+                right: 10px;
+            }
+            
+            .controls {
+                flex-wrap: wrap;
+                bottom: 10px;
+                gap: 10px;
+            }
+            
+            .control-btn {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .character-stats {
+                bottom: 100px;
+                max-width: 95%;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Character Equipment</h1>
-    <p>Hover over each equipment slot to see details</p>
-    
-    <div class="container">
-        <!-- Main character image -->
-        <img id="character-image" src="image.png" usemap="#equipment-map" alt="Character Equipment">
+    <div id="app">
+        <div class="bg-particles" id="particles"></div>
         
-        <!-- Hidden hover images -->
-        <img id="weapon1-hover" class="hover-image" src="images/weapon1-detail.png" alt="Weapon 1 Details">
-        <img id="weapon2-hover" class="hover-image" src="images/weapon2-detail.png" alt="Weapon 2 Details">
-        <img id="head-hover" class="hover-image" src="images/head-detail.png" alt="Head Details">
-        <img id="cap-hover" class="hover-image" src="images/cap-detail.png" alt="Cap Details">
-        <img id="chest-hover" class="hover-image" src="images/chest-detail.png" alt="Chest Details">
-        <img id="gloves-hover" class="hover-image" src="images/gloves-detail.png" alt="Gloves Details">
-        <img id="pants-hover" class="hover-image" src="images/pants-detail.png" alt="Pants Details">
-        <img id="boots-hover" class="hover-image" src="images/boots-detail.png" alt="Boots Details">
-        <img id="necklace-hover" class="hover-image" src="images/necklace-detail.png" alt="Necklace Details">
-        <img id="braclet-hover" class="hover-image" src="images/braclet-detail.png" alt="Braclet Details">
-        <img id="ring1-hover" class="hover-image" src="images/ring1-detail.png" alt="Ring 1 Details">
-        <img id="ring2-hover" class="hover-image" src="images/ring2-detail.png" alt="Ring 2 Details">
-        <img id="belt-hover" class="hover-image" src="images/belt-detail.png" alt="Belt Details">
-        <img id="stats-hover" class="hover-image" src="images/stats-detail.png" alt="Stats Details">
-        <img id="skills-hover" class="hover-image" src="images/skills-detail.png" alt="Skills Details">
+        <div class="header">
+            <h1>⚔️ ARMORY INSPECTOR</h1>
+            <p class="subtitle">Hover over equipment slots or select from the inventory</p>
+            <p class="subtitle">By Sienna For Sienna</p>
+        </div>
         
-        <!-- Image map -->
-        <map name="equipment-map">
-            <area target="" alt="weapon 1" title="weapon 1" coords="835,302,138" shape="circle" 
-                 onmouseover="showHover('weapon1-hover')" onmouseout="hideHover('weapon1-hover')">
-            <area target="" alt="weapon 2" title="weapon 2" coords="570,506,83" shape="circle" 
-                 onmouseover="showHover('weapon2-hover')" onmouseout="hideHover('weapon2-hover')">
-            <area target="" alt="head" title="head" coords="1675,174,50" shape="circle" 
-                 onmouseover="showHover('head-hover')" onmouseout="hideHover('head-hover')">
-            <area target="" alt="cap" title="cap" coords="1822,178,49" shape="circle" 
-                 onmouseover="showHover('cap-hover')" onmouseout="hideHover('cap-hover')">
-            <area target="" alt="chest" title="chest" coords="1674,316,49" shape="circle" 
-                 onmouseover="showHover('chest-hover')" onmouseout="hideHover('chest-hover')">
-            <area target="" alt="gloves" title="gloves" coords="1820,315,54" shape="circle" 
-                 onmouseover="showHover('gloves-hover')" onmouseout="hideHover('gloves-hover')">
-            <area target="" alt="pants" title="pants" coords="1675,455,54" shape="circle" 
-                 onmouseover="showHover('pants-hover')" onmouseout="hideHover('pants-hover')">
-            <area target="" alt="boots" title="boots" coords="1819,451,54" shape="circle" 
-                 onmouseover="showHover('boots-hover')" onmouseout="hideHover('boots-hover')">
-            <area target="" alt="necklace" title="necklace" coords="1675,593,47" shape="circle" 
-                 onmouseover="showHover('necklace-hover')" onmouseout="hideHover('necklace-hover')">
-            <area target="" alt="braclet" title="braclet" coords="1821,590,49" shape="circle" 
-                 onmouseover="showHover('braclet-hover')" onmouseout="hideHover('braclet-hover')">
-            <area target="" alt="ring 1" title="ring 1" coords="1675,731,50" shape="circle" 
-                 onmouseover="showHover('ring1-hover')" onmouseout="hideHover('ring1-hover')">
-            <area target="" alt="ring 2" title="ring 2" coords="1822,733,47" shape="circle" 
-                 onmouseover="showHover('ring2-hover')" onmouseout="hideHover('ring2-hover')">
-            <area target="" alt="belt" title="belt" coords="1822,869,49" shape="circle" 
-                 onmouseover="showHover('belt-hover')" onmouseout="hideHover('belt-hover')">
-            <area target="" alt="Stats" title="Stats" coords="982,1026,470,1237" shape="rect" 
-                 onmouseover="showHover('stats-hover')" onmouseout="hideHover('stats-hover')">
-            <area target="" alt="skills" title="skills" coords="460,681,366,777" shape="rect" 
-                 onmouseover="showHover('skills-hover')" onmouseout="hideHover('skills-hover')">
-        </map>
+        <div class="container">
+            <!-- Main character image -->
+            <img id="character-image" src="image.png" usemap="#equipment-map" alt="Character Equipment">
+            
+            <!-- Hidden hover images -->
+            <img id="weapon1-hover" class="hover-image" src="images/weapon1-detail.png" alt="Weapon 1 Details">
+            <img id="weapon2-hover" class="hover-image" src="images/weapon2-detail.png" alt="Weapon 2 Details">
+            <img id="head-hover" class="hover-image" src="images/head-detail.png" alt="Head Details">
+            <img id="cap-hover" class="hover-image" src="images/cap-detail.png" alt="Cap Details">
+            <img id="chest-hover" class="hover-image" src="images/chest-detail.png" alt="Chest Details">
+            <img id="gloves-hover" class="hover-image" src="images/gloves-detail.png" alt="Gloves Details">
+            <img id="pants-hover" class="hover-image" src="images/pants-detail.png" alt="Pants Details">
+            <img id="boots-hover" class="hover-image" src="images/boots-detail.png" alt="Boots Details">
+            <img id="necklace-hover" class="hover-image" src="images/necklace-detail.png" alt="Necklace Details">
+            <img id="braclet-hover" class="hover-image" src="images/braclet-detail.png" alt="Braclet Details">
+            <img id="ring1-hover" class="hover-image" src="images/ring1-detail.png" alt="Ring 1 Details">
+            <img id="ring2-hover" class="hover-image" src="images/ring2-detail.png" alt="Ring 2 Details">
+            <img id="belt-hover" class="hover-image" src="images/belt-detail.png" alt="Belt Details">
+            <img id="stats-hover" class="hover-image" src="images/stats-detail.png" alt="Stats Details">
+            <img id="skills-hover" class="hover-image" src="images/skills-detail.png" alt="Skills Details">
+            
+            <!-- Image map -->
+            <map name="equipment-map">
+                <area target="" alt="weapon 1" title="weapon 1" coords="835,302,138" shape="circle" 
+                     onmouseover="showHover('weapon1-hover')" onmouseout="hideHover('weapon1-hover')" 
+                     onfocus="showHover('weapon1-hover')" onblur="hideHover('weapon1-hover')">
+                <area target="" alt="weapon 2" title="weapon 2" coords="570,506,83" shape="circle" 
+                     onmouseover="showHover('weapon2-hover')" onmouseout="hideHover('weapon2-hover')" 
+                     onfocus="showHover('weapon2-hover')" onblur="hideHover('weapon2-hover')">
+                <area target="" alt="head" title="head" coords="1675,174,50" shape="circle" 
+                     onmouseover="showHover('head-hover')" onmouseout="hideHover('head-hover')" 
+                     onfocus="showHover('head-hover')" onblur="hideHover('head-hover')">
+                <area target="" alt="cap" title="cap" coords="1822,178,49" shape="circle" 
+                     onmouseover="showHover('cap-hover')" onmouseout="hideHover('cap-hover')" 
+                     onfocus="showHover('cap-hover')" onblur="hideHover('cap-hover')">
+                <area target="" alt="chest" title="chest" coords="1674,316,49" shape="circle" 
+                     onmouseover="showHover('chest-hover')" onmouseout="hideHover('chest-hover')" 
+                     onfocus="showHover('chest-hover')" onblur="hideHover('chest-hover')">
+                <area target="" alt="gloves" title="gloves" coords="1820,315,54" shape="circle" 
+                     onmouseover="showHover('gloves-hover')" onmouseout="hideHover('gloves-hover')" 
+                     onfocus="showHover('gloves-hover')" onblur="hideHover('gloves-hover')">
+                <area target="" alt="pants" title="pants" coords="1675,455,54" shape="circle" 
+                     onmouseover="showHover('pants-hover')" onmouseout="hideHover('pants-hover')" 
+                     onfocus="showHover('pants-hover')" onblur="hideHover('pants-hover')">
+                <area target="" alt="boots" title="boots" coords="1819,451,54" shape="circle" 
+                     onmouseover="showHover('boots-hover')" onmouseout="hideHover('boots-hover')" 
+                     onfocus="showHover('boots-hover')" onblur="hideHover('boots-hover')">
+                <area target="" alt="necklace" title="necklace" coords="1675,593,47" shape="circle" 
+                     onmouseover="showHover('necklace-hover')" onmouseout="hideHover('necklace-hover')" 
+                     onfocus="showHover('necklace-hover')" onblur="hideHover('necklace-hover')">
+                <area target="" alt="braclet" title="braclet" coords="1821,590,49" shape="circle" 
+                     onmouseover="showHover('braclet-hover')" onmouseout="hideHover('braclet-hover')" 
+                     onfocus="showHover('braclet-hover')" onblur="hideHover('braclet-hover')">
+                <area target="" alt="ring 1" title="ring 1" coords="1675,731,50" shape="circle" 
+                     onmouseover="showHover('ring1-hover')" onmouseout="hideHover('ring1-hover')" 
+                     onfocus="showHover('ring1-hover')" onblur="hideHover('ring1-hover')">
+                <area target="" alt="ring 2" title="ring 2" coords="1822,733,47" shape="circle" 
+                     onmouseover="showHover('ring2-hover')" onmouseout="hideHover('ring2-hover')" 
+                     onfocus="showHover('ring2-hover')" onblur="hideHover('ring2-hover')">
+                <area target="" alt="belt" title="belt" coords="1822,869,49" shape="circle" 
+                     onmouseover="showHover('belt-hover')" onmouseout="hideHover('belt-hover')" 
+                     onfocus="showHover('belt-hover')" onblur="hideHover('belt-hover')">
+                <area target="" alt="Stats" title="Stats" coords="982,1026,470,1237" shape="rect" 
+                     onmouseover="showHover('stats-hover')" onmouseout="hideHover('stats-hover')" 
+                     onfocus="showHover('stats-hover')" onblur="hideHover('stats-hover')">
+                <area target="" alt="skills" title="skills" coords="460,681,366,777" shape="rect" 
+                     onmouseover="showHover('skills-hover')" onmouseout="hideHover('skills-hover')" 
+                     onfocus="showHover('skills-hover')" onblur="hideHover('skills-hover')">
+            </map>
+        </div>
+        
+        <!-- Equipment inventory sidebar -->
+        <div class="equipment-list" id="equipmentList">
+            <h3>INVENTORY</h3>
+            <div class="equipment-item" onclick="showEquipment('weapon1-hover')">
+                <div class="equipment-icon"></div>
+                <div class="equipment-name rarity-legendary">Soulreaper Greatsword</div>
+            </div>
+            <div class="equipment-item" onclick="showEquipment('weapon2-hover')">
+                <div class="equipment-icon"></div>
+                <div class="equipment-name rarity-epic">Dragonbone Dagger</div>
+            </div>
+            <div class="equipment-item" onclick="showEquipment('head-hover')">
+                <div class="equipment-icon"></div>
+                <div class="equipment-name rarity-epic">Helm of the Infinite</div>
+            </div>
+            <div class="equipment-item" onclick="showEquipment('chest-hover')">
+                <div class="equipment-icon"></div>
+                <div class="equipment-name rarity-rare">Platemail of Valor</div>
+            </div>
+            <div class="equipment-item" onclick="showEquipment('gloves-hover')">
+                <div class="equipment-icon"></div>
+                <div class="equipment-name rarity-rare">Gauntlets of Strength</div>
+            </div>
+            <div class="equipment-item" onclick="showEquipment('pants-hover')">
+                <div class="equipment-icon"></div>
+                <div class="equipment-name rarity-uncommon">Steel Legplates</div>
+            </div>
+            <div class="equipment-item" onclick="showEquipment('boots-hover')">
+                <div class="equipment-icon"></div>
+                <div class="equipment-name rarity-rare">Boots of the Wind</div>
+            </div>
+            <div class="equipment-item" onclick="showEquipment('necklace-hover')">
+                <div class="equipment-icon"></div>
+                <div class="equipment-name rarity-legendary">Amulet of Kings</div>
+            </div>
+            <div class="equipment-item" onclick="showEquipment('ring1-hover')">
+                <div class="equipment-icon"></div>
+                <div class="equipment-name rarity-epic">Ring of Fortune</div>
+            </div>
+            <div class="equipment-item" onclick="showEquipment('ring2-hover')">
+                <div class="equipment-icon"></div>
+                <div class="equipment-name rarity-rare">Band of Protection</div>
+            </div>
+            <div class="equipment-item" onclick="showEquipment('belt-hover')">
+                <div class="equipment-icon"></div>
+                <div class="equipment-name rarity-uncommon">Girdle of Endurance</div>
+            </div>
+        </div>
+        
+        <!-- Character stats panel -->
+        <div class="character-stats" id="characterStats">
+            <div class="stat-card">
+                <div class="stat-name">Strength</div>
+                <div class="stat-value">18</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-name">Dexterity</div>
+                <div class="stat-value">14</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-name">Wisdom</div>
+                <div class="stat-value">12</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-name">Perception</div>
+                <div class="stat-value">16</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-name">Fortitude</div>
+                <div class="stat-value">15</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-name">Haste</div>
+                <div class="stat-value">10%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-name">Critical Strike</div>
+                <div class="stat-value">25%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-name">Mastery</div>
+                <div class="stat-value">20%</div>
+            </div>
+        </div>
+        
+        <!-- Audio toggle -->
+        <button class="audio-toggle" id="audioToggle" title="Toggle sound effects">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+            </svg>
+        </button>
+        
+        <!-- Control buttons -->
+        <div class="controls">
+            <button class="control-btn" onclick="toggleInventory()">📦 Inventory</button>
+            <button class="control-btn" onclick="showStats()">📊 Character Stats</button>
+        </div>
     </div>
     
+    <!-- Audio elements -->
+    <audio id="hoverSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3" preload="auto"></audio>
+    <audio id="clickSound" src="https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3" preload="auto"></audio>
+    <audio id="equipSound" src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3" preload="auto"></audio>
+    <audio id="bgMusic" loop src="https://assets.mixkit.co/music/preview/mixkit-epic-adventure-ai-2857.mp3" preload="auto"></audio>
+    
     <script>
-        // Show centered hover image
+        // Global variables
+        let isInventoryOpen = false;
+        let isMusicPlaying = false;
+        let audioEnabled = true;
+        
+        // Enhanced hover functions
         function showHover(id) {
-            document.getElementById(id).style.display = 'block';
+            const hoverImg = document.getElementById(id);
+            hoverImg.style.display = 'block';
+            setTimeout(() => {
+                hoverImg.classList.add('active');
+            }, 10);
+            
+            // Play sound if enabled
+            if (audioEnabled) {
+                document.getElementById('hoverSound').currentTime = 0;
+                document.getElementById('hoverSound').play().catch(e => console.log("Audio play failed:", e));
+            }
         }
         
-        // Hide hover image
         function hideHover(id) {
-            document.getElementById(id).style.display = 'none';
+            const hoverImg = document.getElementById(id);
+            hoverImg.classList.remove('active');
+            setTimeout(() => {
+                hoverImg.style.display = 'none';
+            }, 300);
+        }
+        
+        // Show equipment from inventory
+        function showEquipment(id) {
+            if (audioEnabled) {
+                document.getElementById('equipSound').currentTime = 0;
+                document.getElementById('equipSound').play();
+            }
+            
+            // Hide all hover images first
+            document.querySelectorAll('.hover-image').forEach(el => {
+                el.classList.remove('active');
+                el.style.display = 'none';
+            });
+            
+            // Show the selected one
+            const element = document.getElementById(id);
+            if (element) {
+                element.style.display = 'block';
+                setTimeout(() => {
+                    element.classList.add('active');
+                }, 10);
+            }
+        }
+        
+        // Create background particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Random size and position
+                const size = Math.random() * 5 + 1;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                
+                // Animation
+                const duration = Math.random() * 20 + 10;
+                particle.style.animation = `float ${duration}s linear infinite`;
+                particle.style.animationDelay = `${Math.random() * 10}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Toggle inventory sidebar
+        function toggleInventory() {
+            if (audioEnabled) {
+                document.getElementById('clickSound').currentTime = 0;
+                document.getElementById('clickSound').play();
+            }
+            
+            const inventory = document.getElementById('equipmentList');
+            isInventoryOpen = !isInventoryOpen;
+            inventory.classList.toggle('show');
+        }
+        
+        // Show character stats
+        function showStats() {
+            if (audioEnabled) {
+                document.getElementById('clickSound').currentTime = 0;
+                document.getElementById('clickSound').play();
+            }
+            
+            const statsPanel = document.getElementById('characterStats');
+            statsPanel.classList.toggle('show');
+        }
+        
+        // Toggle audio
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const audioToggle = document.getElementById('audioToggle');
+            const bgMusic = document.getElementById('bgMusic');
+            bgMusic.volume = 0.3;
+            
+            if (audioEnabled) {
+                audioToggle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path></svg>';
+                bgMusic.play().catch(e => console.log('Autoplay prevented'));
+            } else {
+                audioToggle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"></path></svg>';
+                bgMusic.pause();
+            }
+        }
+        
+        // Handle keyboard shortcuts
+        function handleKeyPress(e) {
+            // I key toggles inventory
+            if (e.key.toLowerCase() === 'i') {
+                toggleInventory();
+            }
+            // S key toggles stats
+            else if (e.key.toLowerCase() === 's') {
+                showStats();
+            }
+            // M key toggles audio
+            else if (e.key.toLowerCase() === 'm') {
+                toggleAudio();
+            }
+            // Escape closes all panels
+            else if (e.key === 'Escape') {
+                document.getElementById('equipmentList').classList.remove('show');
+                document.getElementById('characterStats').classList.remove('show');
+                document.querySelectorAll('.hover-image').forEach(el => {
+                    el.classList.remove('active');
+                    el.style.display = 'none';
+                });
+            }
+        }
+        
+        // Initialize the app
+        function init() {
+            createParticles();
+            preloadImages();
+            
+            // Try to autoplay background music (may be blocked by browser)
+            const bgMusic = document.getElementById('bgMusic');
+            bgMusic.volume = 0.3;
+            const playPromise = bgMusic.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    isMusicPlaying = true;
+                }).catch(error => {
+                    isMusicPlaying = false;
+                });
+            }
+            
+            // Set up event listeners
+            document.addEventListener('keydown', handleKeyPress);
         }
         
         // Preload all hover images
-        window.addEventListener('load', function() {
+        function preloadImages() {
             document.querySelectorAll('.hover-image').forEach(img => {
                 new Image().src = img.src;
             });
-        });
+        }
+        
+        // Set up event listeners when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+        document.getElementById('audioToggle').addEventListener('click', toggleAudio);
     </script>
 </body>
 </html>
