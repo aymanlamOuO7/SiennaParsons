@@ -130,88 +130,6 @@
             outline: none;
         }
         
-        /* Inventory sidebar */
-        .equipment-list {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(10, 10, 10, 0.8);
-            border: 1px solid var(--gold);
-            border-radius: 10px;
-            padding: 15px;
-            width: 250px;
-            max-height: 80vh;
-            overflow-y: auto;
-            z-index: 50;
-            box-shadow: 0 0 20px rgba(0,0,0,0.7);
-            transform: translateX(120%);
-            transition: transform 0.4s ease;
-        }
-        
-        .equipment-list.show {
-            transform: translateX(0);
-        }
-        
-        .equipment-list h3 {
-            color: var(--gold);
-            margin-bottom: 15px;
-            text-align: center;
-            font-family: 'Orbitron', sans-serif;
-            border-bottom: 1px solid var(--gold);
-            padding-bottom: 5px;
-        }
-        
-        .equipment-item {
-            display: flex;
-            align-items: center;
-            padding: 8px;
-            margin-bottom: 8px;
-            background: rgba(30, 30, 30, 0.5);
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .equipment-item:hover {
-            background: rgba(255, 215, 0, 0.2);
-            transform: translateX(5px);
-        }
-        
-        .equipment-icon {
-            width: 30px;
-            height: 30px;
-            margin-right: 10px;
-            background-color: var(--darker-bg);
-            border: 1px solid var(--gold);
-            border-radius: 5px;
-        }
-        
-        .equipment-name {
-            flex-grow: 1;
-            font-size: 0.9rem;
-        }
-        
-        /* Rarity colors */
-        .rarity-common {
-            color: white;
-        }
-        
-        .rarity-uncommon {
-            color: #1eff00;
-        }
-        
-        .rarity-rare {
-            color: #0070ff;
-        }
-        
-        .rarity-epic {
-            color: #a335ee;
-        }
-        
-        .rarity-legendary {
-            color: #ff8000;
-        }
-        
         /* Character stats panel */
         .character-stats {
             position: fixed;
@@ -334,6 +252,52 @@
             transform: translateY(0);
         }
         
+        /* Birthday card */
+        .birthday-card {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(10, 10, 10, 0.8);
+            border: 1px solid var(--gold);
+            border-radius: 10px;
+            padding: 15px;
+            z-index: 50;
+            box-shadow: 0 0 20px rgba(0,0,0,0.7);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .birthday-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px var(--glow-intense);
+        }
+        
+        .birthday-text {
+            font-size: 1.2rem;
+            color: var(--gold);
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .birthday-hover {
+            position: absolute;
+            bottom: -30px; /* Changed from top to bottom */
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid var(--gold);
+            border-radius: 5px;
+            padding: 5px 10px;
+            color: white;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .birthday-card:hover .birthday-hover {
+            opacity: 1;
+        }
+        
         /* Animations */
         @keyframes glow {
             from {
@@ -357,12 +321,6 @@
         @media (max-width: 768px) {
             .container {
                 max-width: 95%;
-            }
-            
-            .equipment-list {
-                width: 200px;
-                top: 10px;
-                right: 10px;
             }
             
             .controls {
@@ -397,8 +355,13 @@
         
         <div class="header">
             <h1>⚔️ ARMORY INSPECTOR</h1>
-            <p class="subtitle">Hover over equipment slots or select from the inventory</p>
-            <p class="subtitle">By Sienna For Sienna</p>
+            <p class="subtitle">Hover over equipment slots to see details</p>
+        </div>
+        
+        <!-- Birthday card -->
+        <div class="birthday-card">
+            <div class="birthday-text">YO KAITO CLICK ME</div>
+            <div class="birthday-hover">happy birthday ❤️</div>
         </div>
         
         <div class="container">
@@ -472,88 +435,39 @@
             </map>
         </div>
         
-        <!-- Equipment inventory sidebar -->
-        <div class="equipment-list" id="equipmentList">
-            <h3>INVENTORY</h3>
-            <div class="equipment-item" onclick="showEquipment('weapon1-hover')">
-                <div class="equipment-icon"></div>
-                <div class="equipment-name rarity-legendary">Bercant's Whispering Daggers</div>
-            </div>
-            <div class="equipment-item" onclick="showEquipment('weapon2-hover')">
-                <div class="equipment-icon"></div>
-                <div class="equipment-name rarity-epic">Deluzhnoa's Serrated Shard</div>
-            </div>
-            <div class="equipment-item" onclick="showEquipment('head-hover')">
-                <div class="equipment-icon"></div>
-                <div class="equipment-name rarity-epic">Hood of the Resistance</div>
-            </div>
-            <div class="equipment-item" onclick="showEquipment('chest-hover')">
-                <div class="equipment-icon"></div>
-                <div class="equipment-name rarity-rare">Opulent Noble's Mantle</div>
-            </div>
-            <div class="equipment-item" onclick="showEquipment('gloves-hover')">
-                <div class="equipment-icon"></div>
-                <div class="equipment-name rarity-rare">Imperial Seeker's Tunic</div>
-            </div>
-            <div class="equipment-item" onclick="showEquipment('pants-hover')">
-                <div class="equipment-icon"></div>
-                <div class="equipment-name rarity-uncommon">Forgotten Lotus Gloves</div>
-            </div>
-            <div class="equipment-item" onclick="showEquipment('boots-hover')">
-                <div class="equipment-icon"></div>
-                <div class="equipment-name rarity-rare">Forgotten Lotus Pants</div>
-            </div>
-            <div class="equipment-item" onclick="showEquipment('necklace-hover')">
-                <div class="equipment-icon"></div>
-                <div class="equipment-name rarity-legendary">Imperial Seeker's Boots</div>
-            </div>
-            <div class="equipment-item" onclick="showEquipment('ring1-hover')">
-                <div class="equipment-icon"></div>
-                <div class="equipment-name rarity-epic">Death Knell Gorget</div>
-            </div>
-            <div class="equipment-item" onclick="showEquipment('ring2-hover')">
-                <div class="equipment-icon"></div>
-                <div class="equipment-name rarity-rare">Primal Golden Cuffs</div>
-            </div>
-            <div class="equipment-item" onclick="showEquipment('belt-hover')">
-                <div class="equipment-icon"></div>
-                <div class="equipment-name rarity-uncommon">Solitare of Purity</div>
-            </div>
-        </div>
-        
         <!-- Character stats panel -->
         <div class="character-stats" id="characterStats">
             <div class="stat-card">
                 <div class="stat-name">Strength</div>
-                <div class="stat-value">18</div>
+                <div class="stat-value">53</div>
             </div>
             <div class="stat-card">
                 <div class="stat-name">Dexterity</div>
-                <div class="stat-value">14</div>
+                <div class="stat-value">80</div>
             </div>
             <div class="stat-card">
                 <div class="stat-name">Wisdom</div>
-                <div class="stat-value">12</div>
+                <div class="stat-value">29</div>
             </div>
             <div class="stat-card">
                 <div class="stat-name">Perception</div>
-                <div class="stat-value">16</div>
+                <div class="stat-value">60</div>
             </div>
             <div class="stat-card">
                 <div class="stat-name">Fortitude</div>
-                <div class="stat-value">15</div>
+                <div class="stat-value">23</div>
             </div>
             <div class="stat-card">
                 <div class="stat-name">Haste</div>
-                <div class="stat-value">10%</div>
+                <div class="stat-value">16.7%</div>
             </div>
             <div class="stat-card">
                 <div class="stat-name">Critical Strike</div>
-                <div class="stat-value">25%</div>
+                <div class="stat-value">1868</div>
             </div>
             <div class="stat-card">
                 <div class="stat-name">Mastery</div>
-                <div class="stat-value">20%</div>
+                <div class="stat-value">630</div>
             </div>
         </div>
         
@@ -566,7 +480,6 @@
         
         <!-- Control buttons -->
         <div class="controls">
-            <button class="control-btn" onclick="toggleInventory()">📦 Inventory</button>
             <button class="control-btn" onclick="showStats()">📊 Character Stats</button>
         </div>
     </div>
@@ -579,7 +492,6 @@
     
     <script>
         // Global variables
-        let isInventoryOpen = false;
         let isMusicPlaying = false;
         let audioEnabled = true;
         
@@ -606,29 +518,6 @@
             }, 300);
         }
         
-        // Show equipment from inventory
-        function showEquipment(id) {
-            if (audioEnabled) {
-                document.getElementById('equipSound').currentTime = 0;
-                document.getElementById('equipSound').play();
-            }
-            
-            // Hide all hover images first
-            document.querySelectorAll('.hover-image').forEach(el => {
-                el.classList.remove('active');
-                el.style.display = 'none';
-            });
-            
-            // Show the selected one
-            const element = document.getElementById(id);
-            if (element) {
-                element.style.display = 'block';
-                setTimeout(() => {
-                    element.classList.add('active');
-                }, 10);
-            }
-        }
-        
         // Create background particles
         function createParticles() {
             const particlesContainer = document.getElementById('particles');
@@ -652,18 +541,6 @@
                 
                 particlesContainer.appendChild(particle);
             }
-        }
-        
-        // Toggle inventory sidebar
-        function toggleInventory() {
-            if (audioEnabled) {
-                document.getElementById('clickSound').currentTime = 0;
-                document.getElementById('clickSound').play();
-            }
-            
-            const inventory = document.getElementById('equipmentList');
-            isInventoryOpen = !isInventoryOpen;
-            inventory.classList.toggle('show');
         }
         
         // Show character stats
@@ -695,12 +572,8 @@
         
         // Handle keyboard shortcuts
         function handleKeyPress(e) {
-            // I key toggles inventory
-            if (e.key.toLowerCase() === 'i') {
-                toggleInventory();
-            }
             // S key toggles stats
-            else if (e.key.toLowerCase() === 's') {
+            if (e.key.toLowerCase() === 's') {
                 showStats();
             }
             // M key toggles audio
@@ -709,7 +582,6 @@
             }
             // Escape closes all panels
             else if (e.key === 'Escape') {
-                document.getElementById('equipmentList').classList.remove('show');
                 document.getElementById('characterStats').classList.remove('show');
                 document.querySelectorAll('.hover-image').forEach(el => {
                     el.classList.remove('active');
