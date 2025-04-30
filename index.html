@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Character Equipment Viewer</title>
+    <style>
+        body {
+            background-color: #222;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        .container {
+            position: relative;
+            display: inline-block;
+            margin: 20px auto;
+        }
+        #character-image {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            margin: 0 auto;
+        }
+        .hover-image {
+            position: fixed;
+            display: none;
+            border: 2px solid gold;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+            z-index: 100;
+            pointer-events: none;
+            background: rgba(0, 0, 0, 0.8);
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        area {
+            cursor: pointer;
+            outline: none;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        p {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Character Equipment</h1>
+    <p>Hover over each equipment slot to see details</p>
+    
+    <div class="container">
+        <!-- Main character image -->
+        <img id="character-image" src="image.png" usemap="#equipment-map" alt="Character Equipment">
+        
+        <!-- Hidden hover images -->
+        <img id="weapon1-hover" class="hover-image" src="images/weapon1-detail.png" alt="Weapon 1 Details">
+        <img id="weapon2-hover" class="hover-image" src="images/weapon2-detail.png" alt="Weapon 2 Details">
+        <img id="head-hover" class="hover-image" src="images/head-detail.png" alt="Head Details">
+        <img id="cap-hover" class="hover-image" src="images/cap-detail.png" alt="Cap Details">
+        <img id="chest-hover" class="hover-image" src="images/chest-detail.png" alt="Chest Details">
+        <img id="gloves-hover" class="hover-image" src="images/gloves-detail.png" alt="Gloves Details">
+        <img id="pants-hover" class="hover-image" src="images/pants-detail.png" alt="Pants Details">
+        <img id="boots-hover" class="hover-image" src="images/boots-detail.png" alt="Boots Details">
+        <img id="necklace-hover" class="hover-image" src="images/necklace-detail.png" alt="Necklace Details">
+        <img id="braclet-hover" class="hover-image" src="images/braclet-detail.png" alt="Braclet Details">
+        <img id="ring1-hover" class="hover-image" src="images/ring1-detail.png" alt="Ring 1 Details">
+        <img id="ring2-hover" class="hover-image" src="images/ring2-detail.png" alt="Ring 2 Details">
+        <img id="belt-hover" class="hover-image" src="images/belt-detail.png" alt="Belt Details">
+        <img id="stats-hover" class="hover-image" src="images/stats-detail.png" alt="Stats Details">
+        <img id="skills-hover" class="hover-image" src="images/skills-detail.png" alt="Skills Details">
+        
+        <!-- Image map -->
+        <map name="equipment-map">
+            <area target="" alt="weapon 1" title="weapon 1" coords="835,302,138" shape="circle" 
+                 onmouseover="showHover('weapon1-hover')" onmouseout="hideHover('weapon1-hover')">
+            <area target="" alt="weapon 2" title="weapon 2" coords="570,506,83" shape="circle" 
+                 onmouseover="showHover('weapon2-hover')" onmouseout="hideHover('weapon2-hover')">
+            <area target="" alt="head" title="head" coords="1675,174,50" shape="circle" 
+                 onmouseover="showHover('head-hover')" onmouseout="hideHover('head-hover')">
+            <area target="" alt="cap" title="cap" coords="1822,178,49" shape="circle" 
+                 onmouseover="showHover('cap-hover')" onmouseout="hideHover('cap-hover')">
+            <area target="" alt="chest" title="chest" coords="1674,316,49" shape="circle" 
+                 onmouseover="showHover('chest-hover')" onmouseout="hideHover('chest-hover')">
+            <area target="" alt="gloves" title="gloves" coords="1820,315,54" shape="circle" 
+                 onmouseover="showHover('gloves-hover')" onmouseout="hideHover('gloves-hover')">
+            <area target="" alt="pants" title="pants" coords="1675,455,54" shape="circle" 
+                 onmouseover="showHover('pants-hover')" onmouseout="hideHover('pants-hover')">
+            <area target="" alt="boots" title="boots" coords="1819,451,54" shape="circle" 
+                 onmouseover="showHover('boots-hover')" onmouseout="hideHover('boots-hover')">
+            <area target="" alt="necklace" title="necklace" coords="1675,593,47" shape="circle" 
+                 onmouseover="showHover('necklace-hover')" onmouseout="hideHover('necklace-hover')">
+            <area target="" alt="braclet" title="braclet" coords="1821,590,49" shape="circle" 
+                 onmouseover="showHover('braclet-hover')" onmouseout="hideHover('braclet-hover')">
+            <area target="" alt="ring 1" title="ring 1" coords="1675,731,50" shape="circle" 
+                 onmouseover="showHover('ring1-hover')" onmouseout="hideHover('ring1-hover')">
+            <area target="" alt="ring 2" title="ring 2" coords="1822,733,47" shape="circle" 
+                 onmouseover="showHover('ring2-hover')" onmouseout="hideHover('ring2-hover')">
+            <area target="" alt="belt" title="belt" coords="1822,869,49" shape="circle" 
+                 onmouseover="showHover('belt-hover')" onmouseout="hideHover('belt-hover')">
+            <area target="" alt="Stats" title="Stats" coords="982,1026,470,1237" shape="rect" 
+                 onmouseover="showHover('stats-hover')" onmouseout="hideHover('stats-hover')">
+            <area target="" alt="skills" title="skills" coords="460,681,366,777" shape="rect" 
+                 onmouseover="showHover('skills-hover')" onmouseout="hideHover('skills-hover')">
+        </map>
+    </div>
+    
+    <script>
+        // Show centered hover image
+        function showHover(id) {
+            document.getElementById(id).style.display = 'block';
+        }
+        
+        // Hide hover image
+        function hideHover(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+        
+        // Preload all hover images
+        window.addEventListener('load', function() {
+            document.querySelectorAll('.hover-image').forEach(img => {
+                new Image().src = img.src;
+            });
+        });
+    </script>
+</body>
+</html>
