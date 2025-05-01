@@ -453,24 +453,25 @@
         let isMusicPlaying = false;
         let audioEnabled = true;
         let originalImageWidth = 0;
+        let originalImageHeight = 0;
         
-        // Equipment areas data - coordinates are based on original image dimensions
-        const equipmentAreas = [
-            { id: 'weapon1-hover', shape: 'circle', coords: [835,302,138], title: 'weapon 1' },
-            { id: 'weapon2-hover', shape: 'circle', coords: [570,506,83], title: 'weapon 2' },
-            { id: 'head-hover', shape: 'circle', coords: [1675,174,50], title: 'head' },
-            { id: 'cap-hover', shape: 'circle', coords: [1822,178,49], title: 'cap' },
-            { id: 'chest-hover', shape: 'circle', coords: [1674,316,49], title: 'chest' },
-            { id: 'gloves-hover', shape: 'circle', coords: [1820,315,54], title: 'gloves' },
-            { id: 'pants-hover', shape: 'circle', coords: [1675,455,54], title: 'pants' },
-            { id: 'boots-hover', shape: 'circle', coords: [1819,451,54], title: 'boots' },
-            { id: 'necklace-hover', shape: 'circle', coords: [1675,593,47], title: 'necklace' },
-            { id: 'braclet-hover', shape: 'circle', coords: [1821,590,49], title: 'braclet' },
-            { id: 'ring1-hover', shape: 'circle', coords: [1675,731,50], title: 'ring 1' },
-            { id: 'ring2-hover', shape: 'circle', coords: [1822,733,47], title: 'ring 2' },
-            { id: 'belt-hover', shape: 'circle', coords: [1822,869,49], title: 'belt' },
-            { id: 'stats-hover', shape: 'rect', coords: [982,1026,470,1237], title: 'Stats' },
-            { id: 'skills-hover', shape: 'rect', coords: [460,681,366,777], title: 'skills' }
+        // Define the original coordinates (based on your original image dimensions)
+        const areaDefinitions = [
+            { id: 'weapon1', shape: 'circle', coords: [835,302,138], hoverId: 'weapon1-hover' },
+            { id: 'weapon2', shape: 'circle', coords: [570,506,83], hoverId: 'weapon2-hover' },
+            { id: 'head', shape: 'circle', coords: [1675,174,50], hoverId: 'head-hover' },
+            { id: 'cap', shape: 'circle', coords: [1822,178,49], hoverId: 'cap-hover' },
+            { id: 'chest', shape: 'circle', coords: [1674,316,49], hoverId: 'chest-hover' },
+            { id: 'gloves', shape: 'circle', coords: [1820,315,54], hoverId: 'gloves-hover' },
+            { id: 'pants', shape: 'circle', coords: [1675,455,54], hoverId: 'pants-hover' },
+            { id: 'boots', shape: 'circle', coords: [1819,451,54], hoverId: 'boots-hover' },
+            { id: 'necklace', shape: 'circle', coords: [1675,593,47], hoverId: 'necklace-hover' },
+            { id: 'braclet', shape: 'circle', coords: [1821,590,49], hoverId: 'braclet-hover' },
+            { id: 'ring1', shape: 'circle', coords: [1675,731,50], hoverId: 'ring1-hover' },
+            { id: 'ring2', shape: 'circle', coords: [1822,733,47], hoverId: 'ring2-hover' },
+            { id: 'belt', shape: 'circle', coords: [1822,869,49], hoverId: 'belt-hover' },
+            { id: 'stats', shape: 'rect', coords: [982,1026,470,1237], hoverId: 'stats-hover' },
+            { id: 'skills', shape: 'rect', coords: [460,681,366,777], hoverId: 'skills-hover' }
         ];
         
         // Enhanced hover functions
@@ -568,45 +569,57 @@
             }
         }
         
-        // Update image map coordinates based on current image size
+        // Calculate scaled coordinates based on current image size
+        function getScaledCoords(originalCoords, currentWidth, currentHeight) {
+            const widthRatio = currentWidth / originalImageWidth;
+            const heightRatio = currentHeight / originalImageHeight;
+            
+            return originalCoords.map((coord, index) => {
+                // For circles, scale x, y, and radius
+                if (originalCoords.length === 3 && index < 2) {
+                    return Math.round(coord * (index === 0 ? widthRatio : heightRatio));
+                }
+                // For circles, radius should be scaled by the average ratio
+                else if (originalCoords.length === 3 && index === 2) {
+                    return Math.round(coord * ((widthRatio + heightRatio) / 2));
+                }
+                // For rectangles, scale all coordinates
+                else {
+                    return Math.round(coord * (index % 2 === 0 ? widthRatio : heightRatio));
+                }
+            });
+        }
+        
+        // Update image map areas when window resizes
         function updateImageMap() {
             const characterImage = document.getElementById('character-image');
-            const mapElement = document.getElementById('equipment-map');
+            const map = document.getElementById('equipment-map');
             
             // Clear existing areas
-            mapElement.innerHTML = '';
+            map.innerHTML = '';
             
-            // Calculate scale factor
+            // Get current image dimensions
             const currentWidth = characterImage.clientWidth;
-            const scaleFactor = currentWidth / originalImageWidth;
+            const currentHeight = characterImage.clientHeight;
             
             // Create new areas with scaled coordinates
-            equipmentAreas.forEach(area => {
-                const areaElement = document.createElement('area');
-                areaElement.shape = area.shape;
-                areaElement.alt = area.title;
-                areaElement.title = area.title;
+            areaDefinitions.forEach(areaDef => {
+                const area = document.createElement('area');
+                area.alt = areaDef.id;
+                area.title = areaDef.id;
+                area.shape = areaDef.shape;
                 
-                // Scale coordinates
-                const scaledCoords = area.coords.map(coord => Math.round(coord * scaleFactor));
+                // Scale the coordinates
+                const scaledCoords = getScaledCoords(areaDef.coords, currentWidth, currentHeight);
+                area.coords = scaledCoords.join(',');
                 
-                // For rectangles, we need to make sure coordinates are in correct order
-                if (area.shape === 'rect') {
-                    // Ensure x1 < x2 and y1 < y2
-                    const [x1, y1, width, height] = scaledCoords;
-                    const x2 = x1 + width;
-                    const y2 = y1 + height;
-                    areaElement.coords = `${x1},${y1},${x2},${y2}`;
-                } else {
-                    areaElement.coords = scaledCoords.join(',');
-                }
+                // Set event handlers
+                area.onmouseover = () => showHover(areaDef.hoverId);
+                area.onmouseout = () => hideHover(areaDef.hoverId);
+                area.onfocus = () => showHover(areaDef.hoverId);
+                area.onblur = () => hideHover(areaDef.hoverId);
                 
-                areaElement.onmouseover = () => showHover(area.id);
-                areaElement.onmouseout = () => hideHover(area.id);
-                areaElement.onfocus = () => showHover(area.id);
-                areaElement.onblur = () => hideHover(area.id);
-                
-                mapElement.appendChild(areaElement);
+                map.appendChild(area);
             });
         }
         
@@ -615,21 +628,23 @@
             createParticles();
             preloadImages();
             
-            // Get original image dimensions
+            // Get original image dimensions once it's loaded
             const characterImage = document.getElementById('character-image');
             characterImage.onload = function() {
                 originalImageWidth = this.naturalWidth;
+                originalImageHeight = this.naturalHeight;
+                
+                // Create initial image map
                 updateImageMap();
+                
+                // Update on window resize
+                window.addEventListener('resize', updateImageMap);
             };
             
-            // If image is already loaded
-            if (characterImage.complete && characterImage.naturalWidth !== 0) {
-                originalImageWidth = characterImage.naturalWidth;
-                updateImageMap();
+            // Set a fallback in case the image is already loaded
+            if (characterImage.complete) {
+                characterImage.onload();
             }
-            
-            // Set up window resize handler
-            window.addEventListener('resize', updateImageMap);
             
             // Try to autoplay background music (may be blocked by browser)
             const bgMusic = document.getElementById('bgMusic');
