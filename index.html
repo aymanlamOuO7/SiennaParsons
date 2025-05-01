@@ -132,6 +132,32 @@
             outline: none;
         }
         
+        /* Highlight area for hover effects */
+        .highlight-area {
+            position: absolute;
+            background: var(--highlight);
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10;
+            transition: all var(--transition-speed) ease;
+            box-shadow: 0 0 15px var(--glow-color);
+        }
+        
+        .highlight-area.rect {
+            border-radius: 5px;
+        }
+        
+        .highlight-area.hidden {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        
+        .highlight-area.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
         /* Character stats panel */
         .character-stats {
             position: fixed;
@@ -282,7 +308,7 @@
         
         .birthday-hover {
             position: absolute;
-            bottom: -30px; /* Changed from top to bottom */
+            bottom: -30px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.9);
@@ -369,6 +395,9 @@
         <div class="container">
             <!-- Main character image -->
             <img id="character-image" src="image.png" usemap="#equipment-map" alt="Character Equipment">
+            
+            <!-- Highlight element -->
+            <div id="highlight-area" class="highlight-area hidden"></div>
             
             <!-- Hidden hover images -->
             <img id="weapon1-hover" class="hover-image" src="images/weapon1-detail.png" alt="Weapon 1 Details">
@@ -475,12 +504,31 @@
         ];
         
         // Enhanced hover functions
-        function showHover(id) {
+        function showHover(id, coords, shape) {
             const hoverImg = document.getElementById(id);
             hoverImg.style.display = 'block';
             setTimeout(() => {
                 hoverImg.classList.add('active');
             }, 10);
+            
+            // Show highlight
+            const highlight = document.getElementById('highlight-area');
+            highlight.className = `highlight-area visible ${shape}`;
+            
+            // Position and size the highlight
+            if (shape === 'circle') {
+                const [x, y, r] = coords;
+                highlight.style.width = `${r * 2}px`;
+                highlight.style.height = `${r * 2}px`;
+                highlight.style.left = `${x - r}px`;
+                highlight.style.top = `${y - r}px`;
+            } else if (shape === 'rect') {
+                const [x1, y1, x2, y2] = coords;
+                highlight.style.width = `${Math.abs(x2 - x1)}px`;
+                highlight.style.height = `${Math.abs(y2 - y1)}px`;
+                highlight.style.left = `${Math.min(x1, x2)}px`;
+                highlight.style.top = `${Math.min(y1, y2)}px`;
+            }
             
             // Play sound if enabled
             if (audioEnabled) {
@@ -495,6 +543,9 @@
             setTimeout(() => {
                 hoverImg.style.display = 'none';
             }, 300);
+            
+            // Hide highlight
+            document.getElementById('highlight-area').className = 'highlight-area hidden';
         }
         
         // Create background particles
@@ -566,6 +617,7 @@
                     el.classList.remove('active');
                     el.style.display = 'none';
                 });
+                document.getElementById('highlight-area').className = 'highlight-area hidden';
             }
         }
         
@@ -614,9 +666,9 @@
                 area.coords = scaledCoords.join(',');
                 
                 // Set event handlers
-                area.onmouseover = () => showHover(areaDef.hoverId);
+                area.onmouseover = () => showHover(areaDef.hoverId, scaledCoords, areaDef.shape);
                 area.onmouseout = () => hideHover(areaDef.hoverId);
-                area.onfocus = () => showHover(areaDef.hoverId);
+                area.onfocus = () => showHover(areaDef.hoverId, scaledCoords, areaDef.shape);
                 area.onblur = () => hideHover(areaDef.hoverId);
                 
                 map.appendChild(area);
