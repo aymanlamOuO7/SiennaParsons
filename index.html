@@ -101,6 +101,8 @@
             transform: translate(-50%, -50%) scale(0.9);
             max-width: 80vw;
             max-height: 80vh;
+            width: auto;
+            height: auto;
             opacity: 0;
             transition: all var(--transition-speed) ease;
             padding: 15px;
@@ -355,7 +357,7 @@
         
         <div class="header">
             <h1>⚔️ ARMORY INSPECTOR</h1>
-            <p class="subtitle">Make Sure You are using full screen Hover over equipment slots to see details. By Sienna For Sienna</p>
+            <p class="subtitle">Hover over equipment slots to see details. By Sienna For Sienna</p>
         </div>
         
         <!-- Birthday card -->
@@ -386,52 +388,8 @@
             <img id="skills-hover" class="hover-image" src="images/skills-detail.png" alt="Skills Details">
             
             <!-- Image map -->
-            <map name="equipment-map">
-                <area target="" alt="weapon 1" title="weapon 1" coords="835,302,138" shape="circle" 
-                     onmouseover="showHover('weapon1-hover')" onmouseout="hideHover('weapon1-hover')" 
-                     onfocus="showHover('weapon1-hover')" onblur="hideHover('weapon1-hover')">
-                <area target="" alt="weapon 2" title="weapon 2" coords="570,506,83" shape="circle" 
-                     onmouseover="showHover('weapon2-hover')" onmouseout="hideHover('weapon2-hover')" 
-                     onfocus="showHover('weapon2-hover')" onblur="hideHover('weapon2-hover')">
-                <area target="" alt="head" title="head" coords="1675,174,50" shape="circle" 
-                     onmouseover="showHover('head-hover')" onmouseout="hideHover('head-hover')" 
-                     onfocus="showHover('head-hover')" onblur="hideHover('head-hover')">
-                <area target="" alt="cap" title="cap" coords="1822,178,49" shape="circle" 
-                     onmouseover="showHover('cap-hover')" onmouseout="hideHover('cap-hover')" 
-                     onfocus="showHover('cap-hover')" onblur="hideHover('cap-hover')">
-                <area target="" alt="chest" title="chest" coords="1674,316,49" shape="circle" 
-                     onmouseover="showHover('chest-hover')" onmouseout="hideHover('chest-hover')" 
-                     onfocus="showHover('chest-hover')" onblur="hideHover('chest-hover')">
-                <area target="" alt="gloves" title="gloves" coords="1820,315,54" shape="circle" 
-                     onmouseover="showHover('gloves-hover')" onmouseout="hideHover('gloves-hover')" 
-                     onfocus="showHover('gloves-hover')" onblur="hideHover('gloves-hover')">
-                <area target="" alt="pants" title="pants" coords="1675,455,54" shape="circle" 
-                     onmouseover="showHover('pants-hover')" onmouseout="hideHover('pants-hover')" 
-                     onfocus="showHover('pants-hover')" onblur="hideHover('pants-hover')">
-                <area target="" alt="boots" title="boots" coords="1819,451,54" shape="circle" 
-                     onmouseover="showHover('boots-hover')" onmouseout="hideHover('boots-hover')" 
-                     onfocus="showHover('boots-hover')" onblur="hideHover('boots-hover')">
-                <area target="" alt="necklace" title="necklace" coords="1675,593,47" shape="circle" 
-                     onmouseover="showHover('necklace-hover')" onmouseout="hideHover('necklace-hover')" 
-                     onfocus="showHover('necklace-hover')" onblur="hideHover('necklace-hover')">
-                <area target="" alt="braclet" title="braclet" coords="1821,590,49" shape="circle" 
-                     onmouseover="showHover('braclet-hover')" onmouseout="hideHover('braclet-hover')" 
-                     onfocus="showHover('braclet-hover')" onblur="hideHover('braclet-hover')">
-                <area target="" alt="ring 1" title="ring 1" coords="1675,731,50" shape="circle" 
-                     onmouseover="showHover('ring1-hover')" onmouseout="hideHover('ring1-hover')" 
-                     onfocus="showHover('ring1-hover')" onblur="hideHover('ring1-hover')">
-                <area target="" alt="ring 2" title="ring 2" coords="1822,733,47" shape="circle" 
-                     onmouseover="showHover('ring2-hover')" onmouseout="hideHover('ring2-hover')" 
-                     onfocus="showHover('ring2-hover')" onblur="hideHover('ring2-hover')">
-                <area target="" alt="belt" title="belt" coords="1822,869,49" shape="circle" 
-                     onmouseover="showHover('belt-hover')" onmouseout="hideHover('belt-hover')" 
-                     onfocus="showHover('belt-hover')" onblur="hideHover('belt-hover')">
-                <area target="" alt="Stats" title="Stats" coords="982,1026,470,1237" shape="rect" 
-                     onmouseover="showHover('stats-hover')" onmouseout="hideHover('stats-hover')" 
-                     onfocus="showHover('stats-hover')" onblur="hideHover('stats-hover')">
-                <area target="" alt="skills" title="skills" coords="460,681,366,777" shape="rect" 
-                     onmouseover="showHover('skills-hover')" onmouseout="hideHover('skills-hover')" 
-                     onfocus="showHover('skills-hover')" onblur="hideHover('skills-hover')">
+            <map name="equipment-map" id="equipment-map">
+                <!-- Areas will be generated dynamically by JavaScript -->
             </map>
         </div>
         
@@ -494,6 +452,26 @@
         // Global variables
         let isMusicPlaying = false;
         let audioEnabled = true;
+        let originalImageWidth = 0;
+        
+        // Equipment areas data - coordinates are based on original image dimensions
+        const equipmentAreas = [
+            { id: 'weapon1-hover', shape: 'circle', coords: [835,302,138], title: 'weapon 1' },
+            { id: 'weapon2-hover', shape: 'circle', coords: [570,506,83], title: 'weapon 2' },
+            { id: 'head-hover', shape: 'circle', coords: [1675,174,50], title: 'head' },
+            { id: 'cap-hover', shape: 'circle', coords: [1822,178,49], title: 'cap' },
+            { id: 'chest-hover', shape: 'circle', coords: [1674,316,49], title: 'chest' },
+            { id: 'gloves-hover', shape: 'circle', coords: [1820,315,54], title: 'gloves' },
+            { id: 'pants-hover', shape: 'circle', coords: [1675,455,54], title: 'pants' },
+            { id: 'boots-hover', shape: 'circle', coords: [1819,451,54], title: 'boots' },
+            { id: 'necklace-hover', shape: 'circle', coords: [1675,593,47], title: 'necklace' },
+            { id: 'braclet-hover', shape: 'circle', coords: [1821,590,49], title: 'braclet' },
+            { id: 'ring1-hover', shape: 'circle', coords: [1675,731,50], title: 'ring 1' },
+            { id: 'ring2-hover', shape: 'circle', coords: [1822,733,47], title: 'ring 2' },
+            { id: 'belt-hover', shape: 'circle', coords: [1822,869,49], title: 'belt' },
+            { id: 'stats-hover', shape: 'rect', coords: [982,1026,470,1237], title: 'Stats' },
+            { id: 'skills-hover', shape: 'rect', coords: [460,681,366,777], title: 'skills' }
+        ];
         
         // Enhanced hover functions
         function showHover(id) {
@@ -590,10 +568,68 @@
             }
         }
         
+        // Update image map coordinates based on current image size
+        function updateImageMap() {
+            const characterImage = document.getElementById('character-image');
+            const mapElement = document.getElementById('equipment-map');
+            
+            // Clear existing areas
+            mapElement.innerHTML = '';
+            
+            // Calculate scale factor
+            const currentWidth = characterImage.clientWidth;
+            const scaleFactor = currentWidth / originalImageWidth;
+            
+            // Create new areas with scaled coordinates
+            equipmentAreas.forEach(area => {
+                const areaElement = document.createElement('area');
+                areaElement.shape = area.shape;
+                areaElement.alt = area.title;
+                areaElement.title = area.title;
+                
+                // Scale coordinates
+                const scaledCoords = area.coords.map(coord => Math.round(coord * scaleFactor));
+                
+                // For rectangles, we need to make sure coordinates are in correct order
+                if (area.shape === 'rect') {
+                    // Ensure x1 < x2 and y1 < y2
+                    const [x1, y1, width, height] = scaledCoords;
+                    const x2 = x1 + width;
+                    const y2 = y1 + height;
+                    areaElement.coords = `${x1},${y1},${x2},${y2}`;
+                } else {
+                    areaElement.coords = scaledCoords.join(',');
+                }
+                
+                areaElement.onmouseover = () => showHover(area.id);
+                areaElement.onmouseout = () => hideHover(area.id);
+                areaElement.onfocus = () => showHover(area.id);
+                areaElement.onblur = () => hideHover(area.id);
+                
+                mapElement.appendChild(areaElement);
+            });
+        }
+        
         // Initialize the app
         function init() {
             createParticles();
             preloadImages();
+            
+            // Get original image dimensions
+            const characterImage = document.getElementById('character-image');
+            characterImage.onload = function() {
+                originalImageWidth = this.naturalWidth;
+                updateImageMap();
+            };
+            
+            // If image is already loaded
+            if (characterImage.complete && characterImage.naturalWidth !== 0) {
+                originalImageWidth = characterImage.naturalWidth;
+                updateImageMap();
+            }
+            
+            // Set up window resize handler
+            window.addEventListener('resize', updateImageMap);
             
             // Try to autoplay background music (may be blocked by browser)
             const bgMusic = document.getElementById('bgMusic');
